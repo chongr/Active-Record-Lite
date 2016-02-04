@@ -41,6 +41,7 @@ module Associatable
   # Phase IIIb
   def belongs_to(name, options = {})
     belongs = BelongsToOptions.new(name, options)
+    assoc_options[name.to_sym] = belongs
     define_method(name) do
       value_of_foreign_key = send(belongs.foreign_key)
       found_result = belongs.model_class.send(:where, {belongs.primary_key => value_of_foreign_key})
@@ -52,7 +53,6 @@ module Associatable
   def has_many(name, options = {})
     many = HasManyOptions.new(name, self.name, options)
     define_method(name) do
-
       value_of_id = send(many.primary_key)
       found_result = many.model_class.send(:where, {many.foreign_key => value_of_id})
       found_result
@@ -61,6 +61,7 @@ module Associatable
 
   def assoc_options
     # Wait to implement this in Phase IVa. Modify `belongs_to`, too.
+    @assoc_options ||= {}
   end
 end
 
