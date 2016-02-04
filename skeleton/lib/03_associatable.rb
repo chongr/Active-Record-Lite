@@ -1,5 +1,6 @@
 require_relative '02_searchable'
 require 'active_support/inflector'
+require 'byebug'
 
 # Phase IIIa
 class AssocOptions
@@ -31,7 +32,7 @@ end
 class HasManyOptions < AssocOptions
   def initialize(name, self_class_name, options = {})
     @foreign_key = options[:foreign_key] || "#{self_class_name.downcase}_id".to_sym
-    @class_name = options[:class_name] || "#{name.singularize.capitalize}"
+    @class_name = options[:class_name] || "#{name.to_s.singularize.capitalize}"
     @primary_key = options[:primary_key] || :id
   end
 end
@@ -49,11 +50,13 @@ module Associatable
   end
 
   def has_many(name, options = {})
-    # many = HasManyOptions.new(name, self.class.name, options)
-    # define_method(name) do
-    #   value_of_id = many.primary_key
-    #   found_result = many.model_class.send(:where, {many.foreign_key => value_of_id})
-    # end
+    many = HasManyOptions.new(name, self.name, options)
+    define_method(name) do
+
+      value_of_id = send(many.primary_key)
+      found_result = many.model_class.send(:where, {many.foreign_key => value_of_id})
+      found_result
+    end
   end
 
   def assoc_options
